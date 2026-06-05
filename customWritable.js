@@ -47,15 +47,15 @@ class FileWriteStream extends Writable {
     }
   }
 
-  //   _final(callback) {
-  //     fs.write(this.fd, Buffer.concat(this.chunks), (err) => {
-  //       if (err) {
-  //         return callback(err);
-  //       }
-  //       this.chunks = [];
-  //       callback();
-  //     });
-  //   }
+  _final(callback) {
+    fs.write(this.fd, Buffer.concat(this.chunks), (err) => {
+      if (err) {
+        return callback(err);
+      }
+      this.chunks = [];
+      callback();
+    });
+  }
   //   _destroy(error, callback) {
   //     console.log("Number of writes: ", this.writeCount);
   //     if (this.fd) {
