@@ -56,16 +56,16 @@ class FileWriteStream extends Writable {
       callback();
     });
   }
-  //   _destroy(error, callback) {
-  //     console.log("Number of writes: ", this.writeCount);
-  //     if (this.fd) {
-  //       fs.close(this.fd, (err) => {
-  //         callback(err | error);
-  //       });
-  //     } else {
-  //       callback(error);
-  //     }
-  //   }
+  _destroy(error, callback) {
+    console.log("Number of writes: ", this.writeCount);
+    if (this.fd) {
+      fs.close(this.fd, (err) => {
+        callback(err | error);
+      });
+    } else {
+      callback(error);
+    }
+  }
 }
 
 const stream = new FileWriteStream({
