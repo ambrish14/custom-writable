@@ -54,6 +54,7 @@ class FileWriteStream extends Writable {
         return callback(err);
       }
       this.chunks = [];
+      ++this.writeCount;
       callback();
     });
   }
@@ -96,14 +97,16 @@ class FileWriteStream extends Writable {
   };
 
   writeMany();
-
+  let d = 0;
   //resume our loop  once our stream's internal  buffer is emptied
   stream.on("drain", () => {
+    ++d;
     writeMany();
   });
 
   stream.on("finish", () => {
     console.timeEnd("writeMany");
+    console.log(d);
   });
 })();
 
