@@ -1,5 +1,6 @@
 const { Writable } = require("stream");
 const fs = require("node:fs");
+// const fsPromises = require("node:fs/promises");
 
 class FileWriteStream extends Writable {
   constructor({ highWaterMark, fileName }) {
@@ -68,17 +69,48 @@ class FileWriteStream extends Writable {
   }
 }
 
-const stream = new FileWriteStream({
-  highWaterMark: 1800,
-  fileName: "text.txt",
-});
+//1st run 197.54ms
+(async () => {
+  console.time("writeMany");
 
-stream.write(Buffer.from("this is some stream "));
+  // const fileHandle = await fsPromises.open("text.txt", "w");
+  const stream = new FileWriteStream({
+    fileName: "text.txt",
+  });
+  let i = 0;
+  const numberOfWrites = 1000000;
+  const writeMany = () => {
+    while (i < numberOfWrites) {
+      const buff = Buffer.from(` ${i} `, "utf-8");
+      if (i === numberOfWrites - 1) {
+        return stream.end(buff);
+      }
 
-stream.end(Buffer.from("this is last stream "));
+      // if stream.write returns false, stop the loop
+      // here we are checking is true or false if true still loop or else break and drain it
+      if (!stream.write(buff)) {
+        break;
+      }
+      i++;
+    }
+  };
 
-stream.on("finish", () => {
-  console.log("stream is finished");
-});
+  writeMany();
+
+  //resume our loop  once our stream's internal  buffer is emptied
+  stream.on("drain", () => {
+    writeMany();
+  });
+
+  stream.on("finish", () => {
+    console.timeEnd("writeMany");
+  });
+})();
+
+// stream.write(Buffer.from("this is some stream "));
+// stream.end(Buffer.from("this is last stream "));
+// stream.on("finish", () => {
+//   console.log("stream is finished");
+// });
 
 // stream.on("drain", () => {});
